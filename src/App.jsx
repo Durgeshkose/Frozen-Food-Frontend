@@ -1,22 +1,24 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
-import { AuthProvider } from './context/AuthContext';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import ProtectedRoute from './components/ProtectedRoute';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import UserDashboard from './pages/UserDashboard';
-import ProductDetails from './pages/ProductDetails';
-import Cart from './pages/Cart';
-import Wishlist from './pages/Wishlist';
-import OrderSuccess from './pages/OrderSuccess';
-import OrderHistory from './pages/OrderHistory';
-import AdminDashboard from './admin/AdminDashboard';
-import Profile from './pages/Profile';
-import NotFound from './pages/NotFound';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
+import { AuthProvider } from "./context/AuthContext";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import UserDashboard from "./pages/UserDashboard";
+import ProductDetails from "./pages/ProductDetails";
+import Cart from "./pages/Cart";
+import Wishlist from "./pages/Wishlist";
+import OrderSuccess from "./pages/OrderSuccess";
+import OrderHistory from "./pages/OrderHistory";
+import AdminDashboard from "./admin/AdminDashboard";
+import Profile from "./pages/Profile";
+import NotFound from "./pages/NotFound";
+import FrozenFoodAboutUs from "./pages/AboutUs";
+import FrozenFoodFAQs from "./pages/FAQ";
 
 function App() {
   return (
@@ -30,69 +32,72 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
-                <Route 
-                  path="/user-dashboard" 
+                <Route
+                  path="/user-dashboard"
                   element={
                     <ProtectedRoute role="user">
                       <UserDashboard />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/product/:id" 
+                <Route path="/faq" element={<FrozenFoodFAQs />} />
+
+                <Route path="/about-us" element={<FrozenFoodAboutUs />} />
+                <Route
+                  path="/product/:id"
                   element={
                     <ProtectedRoute role="user">
                       <ProductDetails />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/cart" 
+                <Route
+                  path="/cart"
                   element={
                     <ProtectedRoute role="user">
                       <Cart />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/wishlist" 
+                <Route
+                  path="/wishlist"
                   element={
                     <ProtectedRoute role="user">
                       <Wishlist />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/profile" 
+                <Route
+                  path="/profile"
                   element={
                     <ProtectedRoute role="user">
-                      <Profile/>
+                      <Profile />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/order-success" 
+                <Route
+                  path="/order-success"
                   element={
                     <ProtectedRoute role="user">
                       <OrderSuccess />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/order-history" 
+                <Route
+                  path="/order-history"
                   element={
                     <ProtectedRoute role="user">
                       <OrderHistory />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/admin/*" 
+                <Route
+                  path="/admin/*"
                   element={
                     <ProtectedRoute role="admin">
                       <AdminDashboard />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
                 <Route path="*" element={<NotFound />} />
               </Routes>

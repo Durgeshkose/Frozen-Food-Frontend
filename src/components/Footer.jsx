@@ -13,16 +13,26 @@ const Footer = () => {
               <span className="text-xl font-bold">FrozenFresh</span>
             </div>
             <p className="text-gray-300">
-              Premium frozen food delivery service bringing quality meals to your doorstep.
+              Premium frozen food delivery service bringing quality meals to
+              your doorstep.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-blue-400 transition-colors">
+              <a
+                href="#"
+                className="text-gray-300 hover:text-blue-400 transition-colors"
+              >
                 <FaFacebook className="text-xl" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-blue-400 transition-colors">
+              <a
+                href="#"
+                className="text-gray-300 hover:text-blue-400 transition-colors"
+              >
                 <FaTwitter className="text-xl" />
               </a>
-              <a href="#" className="text-gray-300 hover:text-blue-400 transition-colors">
+              <a
+                href="#"
+                className="text-gray-300 hover:text-blue-400 transition-colors"
+              >
                 <FaInstagram className="text-xl" />
               </a>
             </div>
@@ -32,10 +42,38 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">About Us</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Products</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Delivery Info</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">FAQs</a></li>
+              <li>
+                <a
+                  href="/about-us"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  About Us
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/user-dashboard"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Products
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Delivery Info
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/faq"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  FAQs
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -43,10 +81,38 @@ const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Customer Service</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Contact Us</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Return Policy</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
+              <li>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Contact Us
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Return Policy
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Terms of Service
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -64,7 +130,9 @@ const Footer = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <FaMapMarkerAlt className="text-blue-400" />
-                <span className="text-gray-300">123 Frozen St, Cold City, FC 12345</span>
+                <span className="text-gray-300">
+                  123 Frozen St, Cold City, FC 12345
+                </span>
               </div>
             </div>
           </div>

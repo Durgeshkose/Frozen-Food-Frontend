@@ -22,19 +22,24 @@ const Sidebar = () => {
   // Check if screen is mobile
   useEffect(() => {
     const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768);
-      // Auto-close sidebar on mobile when screen size changes
-      if (window.innerWidth < 768) {
-        setIsOpen(false);
-      } else {
-        setIsOpen(true); // Auto-open on desktop
+      const wasMobile = isMobile;
+      const nowMobile = window.innerWidth < 768;
+      setIsMobile(nowMobile);
+      
+      // Only auto-adjust when switching between mobile/desktop
+      if (wasMobile !== nowMobile) {
+        if (nowMobile) {
+          setIsOpen(false); // Close on mobile
+        } else {
+          setIsOpen(true); // Open on desktop
+        }
       }
     };
 
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
+  }, [isMobile]);
 
   const handleLogout = () => {
     logout();
@@ -113,7 +118,7 @@ const Sidebar = () => {
       <div
         className={`fixed left-0 top-0 h-full w-64 bg-white shadow-lg border-r border-gray-200 z-40 transform transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${isMobile ? '' : 'md:translate-x-0'}`}
+        }`}
       >
         {/* Logo */}
         <div className="flex items-center space-x-3 p-6 border-b border-gray-200">

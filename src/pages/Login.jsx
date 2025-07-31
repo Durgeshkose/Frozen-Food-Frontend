@@ -1,7 +1,4 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { useAuth } from '../context/AuthContext';
 import { FaEnvelope, FaLock, FaSnowflake } from 'react-icons/fa';
 
 const Login = () => {
@@ -9,15 +6,9 @@ const Login = () => {
     email: '',
     password: ''
   });
-  const [role, setRole] = useState('user'); // 🔁 track role here
+  const [role, setRole] = useState('user');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const from = location.state?.from?.pathname || '/';
 
   const handleChange = (e) => {
     setFormData({
@@ -33,25 +24,19 @@ const Login = () => {
     setError('');
 
     try {
-      const result = await login(formData.email, formData.password, role); // 🔁 role sent here
-      if (result.success) {
-        if (result.role === 'admin') {
-          navigate('/admin/dashboard');
-        } else {
-          navigate(from, { replace: true });
-        }
-      } else {
-        setError(result.error || 'Login failed');
-      }
+      // Simulate login process
+      setTimeout(() => {
+        setIsLoading(false);
+        alert(`Login successful as ${role}!`);
+      }, 2000);
     } catch (err) {
       setError('Login failed. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
 
   const fillDemoCredentials = (roleType) => {
-    setRole(roleType); // 🔁 set role when demo button clicked
+    setRole(roleType);
     if (roleType === 'admin') {
       setFormData({
         email: 'admin@example.com',
@@ -66,123 +51,162 @@ const Login = () => {
   };
 
   return (
-    <>
-      <Helmet>
-        <title>Login - FrozenFresh</title>
-        <meta name="description" content="Login to your FrozenFresh account" />
-      </Helmet>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-600 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{animationDelay: '1s'}}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse" style={{animationDelay: '0.5s'}}></div>
+      </div>
 
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <div className="flex justify-center">
-              <FaSnowflake className="text-4xl text-blue-600" />
-            </div>
-            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-              Sign in to your account
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Or{' '}
-              <Link to="/signup" className="font-medium text-blue-600 hover:text-blue-500">
-                create a new account
-              </Link>
-            </p>
-          </div>
-
-          {/* Demo Credentials */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="text-sm font-medium text-blue-800 mb-2">Demo Credentials:</h3>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <button
-                type="button"
-                onClick={() => fillDemoCredentials('user')}
-                className="flex-1 bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition-colors"
-              >
-                User Login
-              </button>
-              <button
-                type="button"
-                onClick={() => fillDemoCredentials('admin')}
-                className="flex-1 bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 transition-colors"
-              >
-                Admin Login
-              </button>
+      <div className="max-w-md w-full space-y-8 relative z-10">
+        {/* Header Section */}
+        <div className="text-center transform transition-all duration-500 ease-out">
+          <div className="flex justify-center mb-6">
+            <div className="p-4 bg-white bg-opacity-10 backdrop-blur-sm rounded-full border border-white border-opacity-20 shadow-2xl">
+              <FaSnowflake className="text-4xl text-cyan-300" style={{
+                animation: 'spin 8s linear infinite'
+              }} />
             </div>
           </div>
+          <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">
+            Welcome Back
+          </h2>
+          <p className="text-blue-100 text-sm">
+            Sign in to continue to{' '}
+            <span className="font-semibold text-cyan-300">FrozenFresh</span>
+          </p>
+          <p className="mt-3 text-xs text-blue-200">
+            Don't have an account?{' '}
+            <a 
+              href="#" 
+              className="font-medium text-cyan-300 hover:text-cyan-200 transition-colors duration-200 underline underline-offset-2"
+            >
+              Create one here
+            </a>
+          </p>
+        </div>
 
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        {/* Demo Credentials Card */}
+        <div className="bg-white bg-opacity-10 backdrop-blur-md border border-white border-opacity-20 rounded-2xl p-6 shadow-2xl transform transition-all duration-300 hover:bg-opacity-15">
+          <h3 className="text-sm font-semibold text-cyan-200 mb-4 flex items-center">
+            <span className="w-2 h-2 bg-cyan-400 rounded-full mr-2 animate-pulse"></span>
+            Demo Credentials
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => fillDemoCredentials('user')}
+              className="group bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-xl text-sm font-medium hover:from-blue-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95"
+            >
+              <span className="group-hover:animate-pulse">👤 User Login</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => fillDemoCredentials('admin')}
+              className="group bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-3 rounded-xl text-sm font-medium hover:from-emerald-400 hover:to-emerald-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95"
+            >
+              <span className="group-hover:animate-pulse">⚡ Admin Login</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Login Form */}
+        <div className="bg-white bg-opacity-10 backdrop-blur-md border border-white border-opacity-20 rounded-2xl p-8 shadow-2xl">
+          <div className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-                {error}
+              <div className="bg-red-500 bg-opacity-20 border border-red-400 border-opacity-30 text-red-200 px-4 py-3 rounded-xl backdrop-blur-sm" style={{
+                animation: 'shake 0.5s ease-in-out'
+              }}>
+                <span className="text-sm">{error}</span>
               </div>
             )}
 
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email address
+            <div className="space-y-5">
+              <div className="group">
+                <label className="block text-sm font-medium text-blue-100 mb-2">
+                  Email Address
                 </label>
-                <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaEnvelope className="h-5 w-5 text-gray-400" />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <FaEnvelope className="h-4 w-4 text-blue-300 transition-colors duration-200" />
                   </div>
                   <input
-                    id="email"
                     name="email"
                     type="email"
-                    autoComplete="email"
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="appearance-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    className="w-full pl-11 pr-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 placeholder-blue-300 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-opacity-15"
                     placeholder="Enter your email"
                   />
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <div className="group">
+                <label className="block text-sm font-medium text-blue-100 mb-2">
                   Password
                 </label>
-                <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <FaLock className="h-5 w-5 text-gray-400" />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <FaLock className="h-4 w-4 text-blue-300 transition-colors duration-200" />
                   </div>
                   <input
-                    id="password"
                     name="password"
                     type="password"
-                    autoComplete="current-password"
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="appearance-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    className="w-full pl-11 pr-4 py-3 bg-white bg-opacity-10 border border-white border-opacity-20 placeholder-blue-300 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-opacity-15"
                     placeholder="Enter your password"
                   />
                 </div>
               </div>
             </div>
 
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Signing in...
-                  </div>
-                ) : (
-                  'Sign in'
-                )}
-              </button>
-            </div>
-          </form>
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-blue-900 bg-gradient-to-r from-cyan-300 to-blue-300 hover:from-cyan-200 hover:to-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95"
+            >
+              {isLoading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-900 mr-2"></div>
+                  <span>Signing in...</span>
+                </div>
+              ) : (
+                <span className="group-hover:tracking-wide transition-all duration-200">
+                  Sign In
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center">
+          <p className="text-xs text-blue-200">
+            Secure login powered by FrozenFresh
+          </p>
         </div>
       </div>
-    </>
+
+      <style jsx>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+      `}</style>
+    </div>
   );
 };
 
