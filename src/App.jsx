@@ -19,6 +19,9 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import FrozenFoodAboutUs from "./pages/AboutUs";
 import FrozenFoodFAQs from "./pages/FAQ";
+import ContactUs from "./pages/ContactUs";
+import ReturnPolicy from "./pages/ReturnPolicy";
+
 
 function App() {
   return (
@@ -32,12 +35,14 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                <Route path="/contact-us" element={<ContactUs />} />
+                <Route path="/return-policy" element={<ReturnPolicy />} />
+                
+                {/* Protected Routes */}
                 <Route
                   path="/user-dashboard"
                   element={
-                    <ProtectedRoute role="user">
                       <UserDashboard />
-                    </ProtectedRoute>
                   }
                 />
                 <Route path="/faq" element={<FrozenFoodFAQs />} />

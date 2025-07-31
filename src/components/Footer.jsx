@@ -83,7 +83,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <a
-                  href="#"
+                  href="/contact-us"
                   className="text-gray-300 hover:text-white transition-colors"
                 >
                   Contact Us
@@ -91,7 +91,7 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="#"
+                  href="/return-policy"
                   className="text-gray-300 hover:text-white transition-colors"
                 >
                   Return Policy

@@ -56,7 +56,7 @@ const FlashSale = () => {
         </div>
         
         <button className="bg-white text-purple-600 px-8 py-3 rounded-full font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg">
-          Shop Flash Sale
+          <a href="/user-dashboard">Shop Flash Sale</a>
         </button>
       </div>
     </div>
@@ -99,42 +99,44 @@ const featuredProducts = [
     id: 1,
     name: "Premium Mixed Berries",
     category: "Frozen Fruits",
-    price: "$12.99",
-    originalPrice: "$15.99",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+    price: "249",
+    originalPrice: "359",
+    image: "/Images/FROZEN-MIXED-BERRIES.jpg",
     rating: 4.8,
-    isPopular: true
+    isPopular: true,
   },
   {
     id: 2,
-    name: "Chicken Tikka Masala",
-    category: "Ready-to-Eat",
-    price: "$8.99",
-    originalPrice: "$11.99",
-    image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=400&h=300&fit=crop",
+    name: "Frozen Sweet Corn",
+    category: "vegetables",
+    price: "199",
+    originalPrice: "300",
+    image: "/Images/frozen sweet corn.jpg",
     rating: 4.6,
-    isPopular: true
+    isPopular: true,
   },
   {
     id: 3,
-    name: "Mozzarella Sticks",
-    category: "Snacks",
-    price: "$6.99",
-    originalPrice: "$8.99",
-    image: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?w=400&h=300&fit=crop",
+    name: "frozen mixed vegetables",
+    category: "vegetables",
+    price: "149",
+    originalPrice: "249",
+    image:
+      "/Images/frozen mixed vegetables.jpg",
     rating: 4.7,
-    isPopular: false
+    isPopular: false,
   },
   {
     id: 4,
-    name: "Atlantic Salmon Fillets",
-    category: "Seafood",
-    price: "$18.99",
-    originalPrice: "$22.99",
-    image: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=400&h=300&fit=crop",
+    name: "frozen momos",
+    category: "Ready-to-Eat",
+    price: "279",
+    originalPrice: "335",
+    image:
+      "/Images/frozen momos.jpg",
     rating: 4.9,
-    isPopular: true
-  }
+    isPopular: true,
+  },
 ];
 
 const categories = [
@@ -292,7 +294,9 @@ const HeroSection = () => {
             <button className="group relative px-8 py-4 bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-semibold rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/50">
               <span className="relative z-10 flex items-center gap-2">
                 <ShoppingCart className="w-5 h-5" />
+                <a href="/user-dashboard">
                 Shop Now
+                </a>
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-300 to-blue-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
             </button>
@@ -795,7 +799,9 @@ const FrozenFoodHomepage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="px-8 py-4 bg-gradient-to-r from-cyan-400 to-blue-500 text-white font-semibold rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/50">
-                Start Shopping
+                <a href="/user-dashboard">
+                  Start Shopping
+                </a>
               </button>
               <button className="px-8 py-4 border-2 border-cyan-300 text-cyan-300 font-semibold rounded-full text-lg transition-all duration-300 hover:bg-cyan-300 hover:text-blue-900 hover:scale-105">
                 Learn More
