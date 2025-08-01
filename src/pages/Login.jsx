@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
 import { FaEnvelope, FaLock, FaSnowflake } from 'react-icons/fa';
+// 
+import { useEffect } from 'react';
+
+
+// // 
 
 const Login = () => {
+  // 
+  useEffect(() => {
+console.log("VITE_API_URL:", import.meta.env.VITE_API_BASE_URL);
+}, []);
+// 
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -24,7 +34,7 @@ const Login = () => {
   setError('');
 
   try {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
+const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
   method: "POST",
   headers: {
     "Content-Type": "application/json"
@@ -207,7 +217,7 @@ const Login = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style >{`
         @keyframes spin {
           from {
             transform: rotate(0deg);
