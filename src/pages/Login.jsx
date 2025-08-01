@@ -19,21 +19,36 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
+  e.preventDefault();
+  setIsLoading(true);
+  setError('');
 
-    try {
-      // Simulate login process
-      setTimeout(() => {
-        setIsLoading(false);
-        alert(`Login successful as ${role}!`);
-      }, 2000);
-    } catch (err) {
-      setError('Login failed. Please try again.');
-      setIsLoading(false);
+  try {
+    const res = await fetch("https://frozen-food-backend.onrender.com/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",  // optional: only if you're using cookies
+      body: JSON.stringify(formData)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Login failed");
     }
-  };
+
+    alert(`✅ Login successful as ${role}`);
+    // optionally: redirect to dashboard or save token
+
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   const fillDemoCredentials = (roleType) => {
     setRole(roleType);
