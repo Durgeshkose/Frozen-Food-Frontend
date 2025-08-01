@@ -6,7 +6,7 @@ import { FaUser, FaEnvelope, FaLock, FaSnowflake } from 'react-icons/fa';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
@@ -101,11 +101,11 @@ const Signup = () => {
                     <FaUser className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
-                    id="name"
-                    name="name"
+                    id="username"
+                    name="username"
                     type="text"
                     required
-                    value={formData.name}
+                    value={formData.username}
                     onChange={handleChange}
                     className="appearance-none relative block w-full pl-10 px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                     placeholder="Enter your full name"
