@@ -22,7 +22,6 @@ import FrozenFoodFAQs from "./pages/FAQ";
 import ContactUs from "./pages/ContactUs";
 import ReturnPolicy from "./pages/ReturnPolicy";
 
-
 function App() {
   return (
     <HelmetProvider>
@@ -37,12 +36,14 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/contact-us" element={<ContactUs />} />
                 <Route path="/return-policy" element={<ReturnPolicy />} />
-                
+
                 {/* Protected Routes */}
                 <Route
                   path="/user-dashboard"
                   element={
+                    <ProtectedRoute role="user">
                       <UserDashboard />
+                    </ProtectedRoute>
                   }
                 />
                 <Route path="/faq" element={<FrozenFoodFAQs />} />

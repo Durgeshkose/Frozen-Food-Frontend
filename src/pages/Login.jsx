@@ -1,77 +1,66 @@
-import React, { useState } from 'react';
-import { FaEnvelope, FaLock, FaSnowflake } from 'react-icons/fa';
-// 
-import { useEffect } from 'react';
-
-
-// // 
+import React, { useState } from "react";
+import { FaEnvelope, FaLock, FaSnowflake } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 
 const Login = () => {
-  // 
-  useEffect(() => {
-console.log("VITE_API_URL:", import.meta.env.VITE_API_BASE_URL);
-}, []);
-// 
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
-  const [role, setRole] = useState('user');
+  const [role, setRole] = useState("user");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-    setError('');
+    setError("");
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-  setError('');
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-  try {
-const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  credentials: "include",
-  body: JSON.stringify(formData)
-});
+    try {
+      const result = await login(formData.email, formData.password, role);
 
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || "Login failed");
+      if (result.success) {
+        alert(`✅ Login successful as ${result.role}`);
+        if (result.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate(from, { replace: true });
+        }
+      } else {
+        throw new Error(result.error || "Login failed");
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
-
-    alert(`✅ Login successful as ${role}`);
-    // optionally: redirect to dashboard or save token
-
-  } catch (err) {
-    setError(err.message);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   const fillDemoCredentials = (roleType) => {
     setRole(roleType);
-    if (roleType === 'admin') {
+    if (roleType === "admin") {
       setFormData({
-        email: 'admin@example.com',
-        password: 'admin123'
+        email: "admin@example.com",
+        password: "admin123",
       });
     } else {
       setFormData({
-        email: 'user@example.com',
-        password: 'user123'
+        email: "user@example.com",
+        password: "user123",
       });
     }
   };
@@ -81,8 +70,14 @@ const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style={{animationDelay: '1s'}}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse" style={{animationDelay: '0.5s'}}></div>
+        <div
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
+        <div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse"
+          style={{ animationDelay: "0.5s" }}
+        ></div>
       </div>
 
       <div className="max-w-md w-full space-y-8 relative z-10">
@@ -90,26 +85,29 @@ const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
         <div className="text-center transform transition-all duration-500 ease-out">
           <div className="flex justify-center mb-6">
             <div className="p-4 bg-white bg-opacity-10 backdrop-blur-sm rounded-full border border-white border-opacity-20 shadow-2xl">
-              <FaSnowflake className="text-4xl text-cyan-300" style={{
-                animation: 'spin 8s linear infinite'
-              }} />
+              <FaSnowflake
+                className="text-4xl text-cyan-300"
+                style={{
+                  animation: "spin 8s linear infinite",
+                }}
+              />
             </div>
           </div>
           <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">
             Welcome Back
           </h2>
           <p className="text-blue-100 text-sm">
-            Sign in to continue to{' '}
+            Sign in to continue to{" "}
             <span className="font-semibold text-cyan-300">FrozenFresh</span>
           </p>
           <p className="mt-3 text-xs text-blue-200">
-            Don't have an account?{' '}
-            <a 
-              href="#" 
+            Don't have an account?{" "}
+            <Link
+              to="/signup"
               className="font-medium text-cyan-300 hover:text-cyan-200 transition-colors duration-200 underline underline-offset-2"
             >
               Create one here
-            </a>
+            </Link>
           </p>
         </div>
 
@@ -122,14 +120,14 @@ const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => fillDemoCredentials('user')}
+              onClick={() => fillDemoCredentials("user")}
               className="group bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-xl text-sm font-medium hover:from-blue-400 hover:to-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95"
             >
               <span className="group-hover:animate-pulse">👤 User Login</span>
             </button>
             <button
               type="button"
-              onClick={() => fillDemoCredentials('admin')}
+              onClick={() => fillDemoCredentials("admin")}
               className="group bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-4 py-3 rounded-xl text-sm font-medium hover:from-emerald-400 hover:to-emerald-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg active:scale-95"
             >
               <span className="group-hover:animate-pulse">⚡ Admin Login</span>
@@ -141,9 +139,12 @@ const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
         <div className="bg-white bg-opacity-10 backdrop-blur-md border border-white border-opacity-20 rounded-2xl p-8 shadow-2xl">
           <div className="space-y-6">
             {error && (
-              <div className="bg-red-500 bg-opacity-20 border border-red-400 border-opacity-30 text-red-200 px-4 py-3 rounded-xl backdrop-blur-sm" style={{
-                animation: 'shake 0.5s ease-in-out'
-              }}>
+              <div
+                className="bg-red-500 bg-opacity-20 border border-red-400 border-opacity-30 text-red-200 px-4 py-3 rounded-xl backdrop-blur-sm"
+                style={{
+                  animation: "shake 0.5s ease-in-out",
+                }}
+              >
                 <span className="text-sm">{error}</span>
               </div>
             )}
@@ -217,7 +218,7 @@ const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
         </div>
       </div>
 
-      <style >{`
+      <style>{`
         @keyframes spin {
           from {
             transform: rotate(0deg);

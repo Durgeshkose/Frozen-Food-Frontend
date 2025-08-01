@@ -1,29 +1,29 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import axiosInstance from '../utils/axiosInstance';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import axiosInstance from "../utils/axiosInstance";
 
 const AuthContext = createContext();
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
 
   useEffect(() => {
     if (token) {
-      const userData = localStorage.getItem('user');
+      const userData = localStorage.getItem("user");
       if (userData) {
         setUser(JSON.parse(userData));
       }
-      const savedCart = localStorage.getItem('cart');
-      const savedWishlist = localStorage.getItem('wishlist');
+      const savedCart = localStorage.getItem("cart");
+      const savedWishlist = localStorage.getItem("wishlist");
       if (savedCart) setCart(JSON.parse(savedCart));
       if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
     }
@@ -31,35 +31,34 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   // ✅ Login function with role support
-  const login = async (email, password, role = 'user') => {
+  const login = async (email, password, role = "user") => {
     try {
-      const endpoint = role === 'admin' ? '/admin/login' : '/auth/login';
+      const endpoint = role === "admin" ? "/admin/login" : "/auth/login";
       const res = await axiosInstance.post(endpoint, { email, password });
 
       const { token, ...userData } = res.data;
-      const finalRole = role; // override with what user selected
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify({ ...userData, role: finalRole }));
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify({ ...userData, role }));
       setToken(token);
-      setUser({ ...userData, role: finalRole });
+      setUser({ ...userData, role });
 
-      return { success: true, role: finalRole };
+      return { success: true, role };
     } catch (error) {
       return {
         success: false,
-        error: error?.response?.data?.message || 'Login failed',
+        error: error?.response?.data?.message || "Login failed",
       };
     }
   };
 
   const signup = async (userData) => {
     try {
-      const res = await axiosInstance.post('/auth/register', userData);
+      const res = await axiosInstance.post("/auth/register", userData);
       const { token, role, ...data } = res.data;
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify({ ...data, role }));
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify({ ...data, role }));
       setToken(token);
       setUser({ ...data, role });
 
