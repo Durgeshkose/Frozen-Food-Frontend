@@ -24,14 +24,15 @@ const Login = () => {
   setError('');
 
   try {
-    const res = await fetch("https://frozen-food-backend.onrender.com/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: "include",  // optional: only if you're using cookies
-      body: JSON.stringify(formData)
-    });
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  credentials: "include",
+  body: JSON.stringify(formData)
+});
+
 
     const data = await res.json();
 
