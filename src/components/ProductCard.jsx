@@ -33,100 +33,111 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-      <Link to={`/product/${product.id}`}>
+    <div className="bg-white rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200 overflow-hidden group">
+      <Link to={`/product/${product.id}`} className="block">
         <div className="relative">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="w-full h-48 object-cover"
-          />
+          {/* Image container with fixed aspect ratio */}
+          <div className="aspect-square overflow-hidden bg-gray-50">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+          </div>
+          
+          {/* Out of stock overlay */}
           {!product.inStock && (
-            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+            <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+              <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
                 Out of Stock
               </span>
             </div>
           )}
+          
+          {/* Wishlist button - Amazon/Flipkart style */}
+          <button
+            onClick={handleWishlistToggle}
+            disabled={isAddingToWishlist}
+            className={`absolute top-2 right-2 p-1.5 rounded-full bg-white shadow-sm border transition-all duration-200 hover:scale-110 ${
+              isInWishlist
+                ? 'text-red-500 border-red-200'
+                : 'text-gray-400 hover:text-red-500 border-gray-200'
+            } ${isAddingToWishlist ? 'opacity-50' : ''}`}
+          >
+            <FaHeart className="text-xs" />
+          </button>
+          
+          {/* Category badge */}
           <div className="absolute top-2 left-2">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-              product.category === 'Veg' ? 'bg-green-100 text-green-800' :
-              product.category === 'Non-Veg' ? 'bg-red-100 text-red-800' :
-              'bg-yellow-100 text-yellow-800'
+            <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+              product.category === 'Veg' ? 'bg-green-100 text-green-700' :
+              product.category === 'Non-Veg' ? 'bg-red-100 text-red-700' :
+              'bg-yellow-100 text-yellow-700'
             }`}>
               {product.category}
             </span>
           </div>
         </div>
         
-        <div className="p-4">
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+        {/* Content section - compact like Amazon/Flipkart */}
+        <div className="p-3">
+          {/* Product name - truncated */}
+          <h3 className="text-sm font-medium text-gray-900 mb-1 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors">
             {product.name}
           </h3>
           
-          <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-            {product.description}
-          </p>
-          
-          <div className="flex items-center mb-3">
+          {/* Rating and reviews - Amazon style */}
+          <div className="flex items-center mb-2">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <FaStar
                   key={i}
-                  className={`text-sm ${
+                  className={`text-xs ${
                     i < Math.floor(product.rating)
-                      ? 'text-yellow-400'
+                      ? 'text-orange-400'
                       : 'text-gray-300'
                   }`}
                 />
               ))}
             </div>
-            <span className="ml-2 text-sm text-gray-600">
-              ({product.reviews} reviews)
+            <span className="ml-1 text-xs text-gray-500">
+              ({product.reviews})
             </span>
           </div>
           
-          <span className="text-xl font-bold text-blue-600">
-            ₹{product.price}
-          </span>
+          {/* Price - prominent like e-commerce sites */}
+          <div className="mb-3">
+            <span className="text-lg font-bold text-gray-900">
+              ₹{product.price}
+            </span>
+          </div>
         </div>
       </Link>
-      <div className="flex items-center justify-between px-4 pb-4">
-        <div className="flex space-x-2">
-          <button
-            onClick={handleWishlistToggle}
-            disabled={isAddingToWishlist}
-            className={`p-2 rounded-full transition-colors ${
-              isInWishlist
-                ? 'bg-red-100 text-red-600 hover:bg-red-200'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            } ${isAddingToWishlist ? 'opacity-50' : ''}`}
-          >
-            <FaHeart className="text-sm" />
-          </button>
-          
-          <button
-            onClick={handleAddToCart}
-            disabled={!product.inStock || isAddingToCart}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-              product.inStock
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            } ${isAddingToCart ? 'opacity-50' : ''}`}
-          >
-            {isAddingToCart ? (
-              <div className="flex items-center space-x-1">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>Adding...</span>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-1">
-                <FaShoppingCart />
-                <span>Add</span>
-              </div>
-            )}
-          </button>
-        </div>
+      
+      {/* Add to cart button - full width like Flipkart */}
+      <div className="px-3 pb-3">
+        <button
+          onClick={handleAddToCart}
+          disabled={!product.inStock || isAddingToCart}
+          className={`w-full py-2 rounded text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-1 ${
+            product.inStock
+              ? 'bg-orange-500 text-white hover:bg-orange-600 active:bg-orange-700'
+              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+          } ${isAddingToCart ? 'opacity-75' : ''}`}
+        >
+          {isAddingToCart ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Adding...</span>
+            </>
+          ) : (
+            <>
+              <FaShoppingCart className="text-xs" />
+              <span>ADD TO CART</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
