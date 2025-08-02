@@ -8,23 +8,25 @@ const ProductCard = ({ product }) => {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
 
-  const isInWishlist = wishlist.some(item => item.id === product.id);
+  // FIX: Check for product._id in wishlist
+  const isInWishlist = wishlist.some(item => item._id === product._id);
 
-  const handleAddToCart = async (e) => {
+  const handleAddToCart = (e) => {
     e.preventDefault();
     if (!product.inStock) return;
     
     setIsAddingToCart(true);
-    addToCart(product);
+    addToCart(product); // Assuming addToCart takes the whole product object
     setTimeout(() => setIsAddingToCart(false), 1000);
   };
 
-  const handleWishlistToggle = async (e) => {
+  const handleWishlistToggle = (e) => {
     e.preventDefault();
     setIsAddingToWishlist(true);
     
     if (isInWishlist) {
-      removeFromWishlist(product.id);
+      // FIX: Use product._id to remove from wishlist
+      removeFromWishlist(product._id);
     } else {
       addToWishlist(product);
     }
@@ -34,9 +36,10 @@ const ProductCard = ({ product }) => {
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200 overflow-hidden group">
-      <Link to={`/product/${product.id}`} className="block">
+      {/* FIX: Link to product details using product._id */}
+      <Link to={`/product/${product._id}`} className="block">
         <div className="relative">
-          {/* Image container with fixed aspect ratio */}
+          {/* Image container */}
           <div className="aspect-square overflow-hidden bg-gray-50">
             <img
               src={product.image}
@@ -55,7 +58,7 @@ const ProductCard = ({ product }) => {
             </div>
           )}
           
-          {/* Wishlist button - Amazon/Flipkart style */}
+          {/* Wishlist button */}
           <button
             onClick={handleWishlistToggle}
             disabled={isAddingToWishlist}
@@ -64,6 +67,7 @@ const ProductCard = ({ product }) => {
                 ? 'text-red-500 border-red-200'
                 : 'text-gray-400 hover:text-red-500 border-gray-200'
             } ${isAddingToWishlist ? 'opacity-50' : ''}`}
+            aria-label="Toggle Wishlist"
           >
             <FaHeart className="text-xs" />
           </button>
@@ -80,33 +84,34 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
         
-        {/* Content section - compact like Amazon/Flipkart */}
+        {/* Content section */}
         <div className="p-3">
-          {/* Product name - truncated */}
           <h3 className="text-sm font-medium text-gray-900 mb-1 line-clamp-2 leading-tight group-hover:text-blue-600 transition-colors">
             {product.name}
           </h3>
           
-          {/* Rating and reviews - Amazon style */}
+          {/* Rating and reviews */}
           <div className="flex items-center mb-2">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <FaStar
                   key={i}
                   className={`text-xs ${
-                    i < Math.floor(product.rating)
+                    // FIX: Use 'ratings' to match backend data
+                    i < Math.floor(product.ratings || 0)
                       ? 'text-orange-400'
                       : 'text-gray-300'
                   }`}
                 />
               ))}
             </div>
+            {/* FIX: Use 'numReviews' to match backend data */}
             <span className="ml-1 text-xs text-gray-500">
-              ({product.reviews})
+              ({product.numReviews || 0})
             </span>
           </div>
           
-          {/* Price - prominent like e-commerce sites */}
+          {/* Price */}
           <div className="mb-3">
             <span className="text-lg font-bold text-gray-900">
               ₹{product.price}
@@ -115,7 +120,7 @@ const ProductCard = ({ product }) => {
         </div>
       </Link>
       
-      {/* Add to cart button - full width like Flipkart */}
+      {/* Add to cart button */}
       <div className="px-3 pb-3">
         <button
           onClick={handleAddToCart}
