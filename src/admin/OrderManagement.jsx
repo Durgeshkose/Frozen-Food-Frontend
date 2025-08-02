@@ -1,317 +1,558 @@
-import React, { useState } from 'react';
-import { mockOrders } from '../data/mockData';
-import { 
-  FaSearch, 
-  FaCalendarAlt, 
-  FaEye, 
+import React, { useEffect, useState, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import axiosInstance from "../utils/axiosInstance";
+import {
+  FaPlus,
   FaEdit,
-  FaShippingFast,
-  FaCheckCircle
-} from 'react-icons/fa';
+  FaTrash,
+  FaSearch,
+  FaFilter,
+  FaTimes,
+  FaCloudUploadAlt,
+  FaSpinner,
+} from "react-icons/fa";
 
-const OrderManagement = () => {
-  const [orders, setOrders] = useState(mockOrders);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('All');
-  const [selectedOrder, setSelectedOrder] = useState(null);
+// Validation Schema with 'stock' field
+const productSchema = yup.object().shape({
+  name: yup.string().required("Product name is required"),
+  price: yup
+    .number()
+    .typeError("Price must be a number")
+    .required("Price is required")
+    .min(1, "Price must be at least 1"),
+  stock: yup
+    .number()
+    .typeError("Stock must be a number")
+    .required("Stock quantity is required")
+    .min(0, "Stock cannot be negative"),
+  category: yup.string().required("Category is required"),
+  description: yup.string().required("Description is required"),
+});
+
+const ProductManagement = () => {
+  const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const statuses = ['All', 'Pending', 'Shipped', 'Delivered'];
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+  } = useForm({ resolver: yupResolver(productSchema) });
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toString().includes(searchTerm) ||
-                         order.items.some(item => 
-                           item.name.toLowerCase().includes(searchTerm.toLowerCase())
-                         );
-    const matchesStatus = selectedStatus === 'All' || order.status === selectedStatus;
-    return matchesSearch && matchesStatus;
-  });
-
-  const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case 'delivered':
-        return 'bg-green-500/20 text-green-300 border border-green-500/30';
-      case 'shipped':
-        return 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
-      case 'pending':
-        return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30';
-      default:
-        return 'bg-gray-500/20 text-gray-300 border border-gray-500/30';
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    try {
+      const res = await axiosInstance.get("/products");
+      setProducts(res.data);
+    } catch (err) {
+      console.error("Failed to fetch products:", err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const getStatusIcon = (status) => {
-    switch (status.toLowerCase()) {
-      case 'delivered':
-        return <FaCheckCircle className="text-green-400" />;
-      case 'shipped':
-        return <FaShippingFast className="text-blue-400" />;
-      default:
-        return <FaEdit className="text-yellow-400" />;
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((p) => {
+      const matchName = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchCategory =
+        selectedCategory === "All" || p.category === selectedCategory;
+      return matchName && matchCategory;
+    });
+  }, [products, searchTerm, selectedCategory]);
+
+  const uniqueCategories = useMemo(() => {
+    return [...new Set(products.map((p) => p.category))];
+  }, [products]);
+
+  const openModal = (product = null) => {
+    setEditingProduct(product);
+    setSubmissionError(null);
+    if (product) {
+      Object.keys(product).forEach((key) => {
+        if (key in productSchema.fields) {
+          setValue(key, product[key]);
+        }
+      });
+      setSelectedImage(product.image);
+    } else {
+      reset();
+      setSelectedImage(null);
     }
-  };
-
-  const updateOrderStatus = (orderId, newStatus) => {
-    setOrders(orders.map(order => 
-      order.id === orderId ? { ...order, status: newStatus } : order
-    ));
-  };
-
-  const openOrderModal = (order) => {
-    setSelectedOrder(order);
     setShowModal(true);
   };
 
   const closeModal = () => {
-    setSelectedOrder(null);
     setShowModal(false);
+    setEditingProduct(null);
+    reset();
+    setSelectedImage(null);
+    setSubmissionError(null);
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const onSubmit = async (data) => {
+    if (!selectedImage) {
+      setSubmissionError("Product image is required.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmissionError(null);
+
+    // Automatically set 'inStock' based on stock quantity
+    const payload = {
+      ...data,
+      image: selectedImage,
+      price: Number(data.price),
+      stock: Number(data.stock),
+      inStock: Number(data.stock) > 0,
+    };
+
+    try {
+      if (editingProduct) {
+        await axiosInstance.put(`/products/${editingProduct._id}`, payload);
+      } else {
+        await axiosInstance.post("/products", payload);
+      }
+      fetchProducts();
+      closeModal();
+    } catch (err) {
+      const errorMsg =
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "An unexpected error occurred.";
+      setSubmissionError(errorMsg);
+      console.error("Operation failed:", err.response?.data || err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const deleteProduct = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    try {
+      await axiosInstance.delete(`/products/${id}`);
+      fetchProducts();
+    } catch (err) {
+      console.error("Failed to delete product:", err.message);
+      alert("Failed to delete product. Please try again.");
+    }
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result);
+        setSubmissionError(null);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
     <div className="p-4 md:p-6">
-      <div className="mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-white">Order Management</h1>
-        <p className="text-blue-100 mt-2">Manage and track customer orders</p>
+      {/* Header and Filters (No changes here) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">
+            Product Management
+          </h1>
+          <p className="text-blue-100 mt-1">Manage your product inventory</p>
+        </div>
+        <button
+          onClick={() => openModal()}
+          className="bg-blue-600/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 border border-blue-500/30 hover:bg-blue-600 transition-colors w-full sm:w-auto"
+        >
+          <FaPlus />
+          <span>Add Product</span>
+        </button>
       </div>
-
-      {/* Order Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-        {statuses.filter(status => status !== 'All').map(status => {
-          const count = orders.filter(order => order.status === status).length;
-          return (
-            <div key={status} className="bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 p-4 md:p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-blue-200">{status} Orders</p>
-                  <p className="text-xl md:text-2xl font-bold text-white mt-2">{count}</p>
-                </div>
-                <div className="p-3 rounded-full bg-white/10">
-                  {getStatusIcon(status)}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 p-4 md:p-6 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-300" />
-              <input
-                type="text"
-                placeholder="Search by order ID or product name..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-              />
-            </div>
+      <div className="bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 p-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <FaSearch className="absolute top-3 left-3 text-blue-300" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search product..."
+              className="pl-10 pr-4 py-2 w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+            />
           </div>
-          <div className="lg:w-48">
+          <div className="relative w-full md:w-48">
+            <FaFilter className="absolute top-3 left-3 text-blue-300" />
             <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="w-full px-4 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
             >
-              {statuses.map(status => (
-                <option key={status} value={status} className="bg-slate-800 text-white">{status}</option>
+              <option value="All" className="bg-slate-800 text-white">
+                All Categories
+              </option>
+              {uniqueCategories.map((cat) => (
+                <option
+                  key={cat}
+                  value={cat}
+                  className="bg-slate-800 text-white"
+                >
+                  {cat}
+                </option>
               ))}
             </select>
           </div>
         </div>
       </div>
 
-      {/* Orders Table */}
-      <div className="bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-white/5">
-              <tr>
-                <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
-                  Items
-                </th>
-                <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
-                  Total
-                </th>
-                <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-4 md:px-6 py-3 text-left text-xs font-medium text-blue-200 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/10">
-              {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                    #{order.id}
-                  </td>
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-blue-100">
-                    User {order.userId}
-                  </td>
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-blue-200">
-                    {order.items.length} item{order.items.length !== 1 ? 's' : ''}
-                  </td>
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm font-medium text-green-300">
-                    ₹{order.total}
-                  </td>
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">
-                    <select
-                      value={order.status}
-                      onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                      className={`px-2 py-1 rounded text-xs font-medium backdrop-blur-sm focus:ring-2 focus:ring-blue-400 ${getStatusColor(order.status)}`}
-                    >
-                      <option value="Pending" className="bg-slate-800 text-white">Pending</option>
-                      <option value="Shipped" className="bg-slate-800 text-white">Shipped</option>
-                      <option value="Delivered" className="bg-slate-800 text-white">Delivered</option>
-                    </select>
-                  </td>
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-blue-200">
-                    <div className="flex items-center">
-                      <FaCalendarAlt className="mr-2 text-blue-300" />
-                      <span className="hidden md:inline">{formatDate(order.orderDate)}</span>
-                      <span className="md:hidden">{new Date(order.orderDate).toLocaleDateString()}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => openOrderModal(order)}
-                      className="text-blue-300 hover:text-blue-100 flex items-center transition-colors"
-                      title="View Details"
-                    >
-                      <FaEye className="mr-1" />
-                      <span className="hidden md:inline">View</span>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Loading or Table (No changes here) */}
+      {isLoading ? (
+        <div className="text-center py-10 text-white flex items-center justify-center">
+          <FaSpinner className="animate-spin mr-3 text-2xl" />
+          <span>Loading Products...</span>
         </div>
-
-        {filteredOrders.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-blue-200">No orders found</p>
+      ) : (
+        <>
+          {/* Desktop Table */}
+          <div className="hidden md:block bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-white/5">
+                  <tr>
+                    <th className="text-left px-4 lg:px-6 py-3 text-xs font-bold uppercase text-blue-200">
+                      Product
+                    </th>
+                    <th className="text-left px-4 lg:px-6 py-3 text-xs font-bold uppercase text-blue-200">
+                      Category
+                    </th>
+                    <th className="text-left px-4 lg:px-6 py-3 text-xs font-bold uppercase text-blue-200">
+                      Price
+                    </th>
+                    <th className="text-left px-4 lg:px-6 py-3 text-xs font-bold uppercase text-blue-200">
+                      Stock
+                    </th>
+                    <th className="text-left px-4 lg:px-6 py-3 text-xs font-bold uppercase text-blue-200">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/10">
+                  {filteredProducts.map((p) => (
+                    <tr
+                      key={p._id}
+                      className="hover:bg-white/5 transition-colors"
+                    >
+                      <td className="px-4 lg:px-6 py-4 flex items-center">
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          className="w-10 h-10 lg:w-12 lg:h-12 rounded object-cover mr-3 flex-shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <p className="font-medium text-white truncate">
+                            {p.name}
+                          </p>
+                          <p className="text-sm text-blue-200 truncate">
+                            {p.description?.slice(0, 30)}...
+                          </p>
+                        </div>
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 text-blue-100">
+                        {p.category}
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 text-green-300 font-medium">
+                        ₹{p.price}
+                      </td>
+                      <td className="px-4 lg:px-6 py-4">
+                        <span
+                          className={`px-2 py-1 rounded text-xs backdrop-blur-sm border ${
+                            p.inStock
+                              ? "bg-green-500/20 text-green-300 border-green-400/30"
+                              : "bg-red-500/20 text-red-300 border-red-400/30"
+                          }`}
+                        >
+                          {p.inStock ? `${p.stock} in Stock` : "Out of Stock"}
+                        </span>
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 space-x-2">
+                        <button
+                          onClick={() => openModal(p)}
+                          className="text-blue-300 hover:text-blue-100 p-1 transition-colors"
+                          title="Edit Product"
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          onClick={() => deleteProduct(p._id)}
+                          className="text-red-300 hover:text-red-100 p-1 transition-colors"
+                          title="Delete Product"
+                        >
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-8 text-blue-200">
+                No products found matching your criteria.
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Order Details Modal */}
-      {showModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/10 backdrop-blur-md rounded-lg border border-white/20 p-4 md:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-4">
+            {filteredProducts.map((p) => (
+              <div
+                key={p._id}
+                className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg p-4"
+              >
+                <div className="flex items-start space-x-3">
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="w-16 h-16 rounded object-cover flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-white truncate">
+                          {p.name}
+                        </h3>
+                        <p className="text-sm text-blue-200 truncate">
+                          {p.description}
+                        </p>
+                        <p className="text-xs text-blue-300 mt-1">
+                          {p.category}
+                        </p>
+                      </div>
+                      <div className="flex space-x-2 ml-2">
+                        <button
+                          onClick={() => openModal(p)}
+                          className="text-blue-300 hover:text-blue-100 p-2 transition-colors"
+                          title="Edit"
+                        >
+                          <FaEdit className="text-sm" />
+                        </button>
+                        <button
+                          onClick={() => deleteProduct(p._id)}
+                          className="text-red-300 hover:text-red-100 p-2 transition-colors"
+                          title="Delete"
+                        >
+                          <FaTrash className="text-sm" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between mt-3">
+                      <span className="text-green-300 font-medium">
+                        ₹{p.price}
+                      </span>
+                      <span
+                        className={`px-2 py-1 rounded text-xs backdrop-blur-sm border ${
+                          p.inStock
+                            ? "bg-green-500/20 text-green-300 border-green-400/30"
+                            : "bg-red-500/20 text-red-300 border-red-400/30"
+                        }`}
+                      >
+                        {p.inStock ? `${p.stock} in Stock` : "Out of Stock"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {filteredProducts.length === 0 && (
+              <div className="text-center py-8 text-blue-200">
+                No products found matching your criteria.
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 w-full max-w-2xl rounded-lg p-4 md:p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl md:text-2xl font-bold text-white">
-                Order Details #{selectedOrder.id}
+                {editingProduct ? "Edit" : "Add"} Product
               </h2>
               <button
                 onClick={closeModal}
-                className="text-blue-200 hover:text-white text-2xl leading-none"
+                className="text-blue-200 hover:text-white text-xl p-1 transition-colors"
               >
-                ×
+                <FaTimes />
               </button>
             </div>
 
-            <div className="space-y-6">
-              {/* Order Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-blue-200">Order Date</p>
-                  <p className="font-medium text-white">{formatDate(selectedOrder.orderDate)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-blue-200">Status</p>
-                  <span className={`px-2 py-1 rounded text-xs font-medium backdrop-blur-sm ${getStatusColor(selectedOrder.status)}`}>
-                    {selectedOrder.status}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm text-blue-200">Customer ID</p>
-                  <p className="font-medium text-white">User {selectedOrder.userId}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-blue-200">Total Amount</p>
-                  <p className="font-bold text-lg text-green-300">₹{selectedOrder.total}</p>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {/* Image Upload */}
+              <div>
+                <label className="block font-medium mb-2 text-white">
+                  Product Image
+                </label>
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                  {selectedImage && (
+                    <img
+                      src={selectedImage}
+                      alt="preview"
+                      className="w-20 h-20 object-cover rounded border border-white/20"
+                    />
+                  )}
+                  <label className="flex items-center space-x-2 cursor-pointer bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg px-4 py-2 text-blue-200 hover:bg-white/25 transition-colors">
+                    <FaCloudUploadAlt />
+                    <span>Upload Image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                    />
+                  </label>
                 </div>
               </div>
 
-              {/* Delivery Address */}
+              {/* Product Name */}
               <div>
-                <h3 className="text-lg font-medium text-white mb-2">Delivery Address</h3>
-                <p className="text-blue-100 bg-white/5 backdrop-blur-sm p-3 rounded-lg border border-white/10">
-                  {selectedOrder.deliveryAddress}
-                </p>
+                <label className="block font-medium mb-2 text-white">
+                  Product Name
+                </label>
+                <input
+                  type="text"
+                  {...register("name")}
+                  className="w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg px-3 py-2 text-white placeholder-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                  placeholder="Enter product name"
+                />
+                {errors.name && (
+                  <p className="text-sm text-red-300 mt-1">
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
 
-              {/* Order Items */}
-              <div>
-                <h3 className="text-lg font-medium text-white mb-4">
-                  Order Items ({selectedOrder.items.length})
-                </h3>
-                <div className="space-y-3">
-                  {selectedOrder.items.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
-                      <div>
-                        <p className="font-medium text-white">{item.name}</p>
-                        <p className="text-sm text-blue-200">Quantity: {item.quantity}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium text-green-300">₹{item.price * item.quantity}</p>
-                        <p className="text-sm text-blue-200">₹{item.price} each</p>
-                      </div>
-                    </div>
-                  ))}
+              {/* Price, Stock, and Category */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block font-medium mb-2 text-white">
+                    Price (₹)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    {...register("price")}
+                    className="w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg px-3 py-2 text-white placeholder-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    placeholder="0.00"
+                  />
+                  {errors.price && (
+                    <p className="text-sm text-red-300 mt-1">
+                      {errors.price.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block font-medium mb-2 text-white">
+                    Stock Quantity
+                  </label>
+                  <input
+                    type="number"
+                    {...register("stock")}
+                    className="w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg px-3 py-2 text-white placeholder-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    placeholder="e.g., 50"
+                  />
+                  {errors.stock && (
+                    <p className="text-sm text-red-300 mt-1">
+                      {errors.stock.message}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <label className="block font-medium mb-2 text-white">
+                    Category
+                  </label>
+                  <input
+                    type="text"
+                    {...register("category")}
+                    className="w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg px-3 py-2 text-white placeholder-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    placeholder="e.g., Frozen Foods"
+                  />
+                  {errors.category && (
+                    <p className="text-sm text-red-300 mt-1">
+                      {errors.category.message}
+                    </p>
+                  )}
                 </div>
               </div>
 
-              {/* Status Update */}
+              {/* Description */}
               <div>
-                <h3 className="text-lg font-medium text-white mb-2">Update Status</h3>
-                <select
-                  value={selectedOrder.status}
-                  onChange={(e) => {
-                    updateOrderStatus(selectedOrder.id, e.target.value);
-                    setSelectedOrder({...selectedOrder, status: e.target.value});
-                  }}
-                  className="w-full px-3 py-2 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                <label className="block font-medium mb-2 text-white">
+                  Description
+                </label>
+                <textarea
+                  rows={3}
+                  {...register("description")}
+                  className="w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg px-3 py-2 text-white placeholder-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none"
+                  placeholder="Enter product description"
+                />
+                {errors.description && (
+                  <p className="text-sm text-red-300 mt-1">
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Submission Error Display */}
+              {submissionError && (
+                <div className="bg-red-500/20 border border-red-400/30 text-red-200 px-4 py-2 rounded-lg text-sm">
+                  {submissionError}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  disabled={isSubmitting}
+                  className="px-4 py-2 bg-gray-600/80 backdrop-blur-sm border border-gray-500/30 text-white rounded-lg hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <option value="Pending" className="bg-slate-800 text-white">Pending</option>
-                  <option value="Shipped" className="bg-slate-800 text-white">Shipped</option>
-                  <option value="Delivered" className="bg-slate-800 text-white">Delivered</option>
-                </select>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-4 py-2 bg-blue-600/80 backdrop-blur-sm border border-blue-500/30 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting && (
+                    <FaSpinner className="animate-spin mr-2" />
+                  )}
+                  {isSubmitting
+                    ? editingProduct
+                      ? "Updating..."
+                      : "Saving..."
+                    : editingProduct
+                    ? "Update Product"
+                    : "Save Product"}
+                </button>
               </div>
-            </div>
-
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-blue-600/80 backdrop-blur-sm text-white rounded-lg hover:bg-blue-600 transition-colors border border-blue-500/30"
-              >
-                Close
-              </button>
-            </div>
+            </form>
           </div>
         </div>
       )}
@@ -319,4 +560,4 @@ const OrderManagement = () => {
   );
 };
 
-export default OrderManagement;
+export default ProductManagement;
