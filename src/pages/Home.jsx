@@ -270,7 +270,7 @@ const HeroSection = () => {
             }}
           >
             <span className="bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
-              Freshly Frozen
+              Frozen Fresh
             </span>
             <br />
             <span className="text-white">Goodness Delivered</span>
