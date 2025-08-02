@@ -145,36 +145,36 @@ const categories = [
     name: "Popular Frozen Items",
     icon: Snowflake,
     gradient: "from-blue-400 to-cyan-300",
-    products: 120
+    products: 120,
   },
   {
     id: 2,
     name: "Snacks & Appetizers",
     icon: ChefHat,
     gradient: "from-purple-400 to-pink-300",
-    products: 85
+    products: 85,
   },
   {
     id: 3,
     name: "Healthy Choices",
     icon: Leaf,
     gradient: "from-green-400 to-emerald-300",
-    products: 95
+    products: 95,
   },
   {
     id: 4,
-    name: "Meat & Seafood",
+    name: "Bakery Products & Desserts",
     icon: Fish,
     gradient: "from-orange-400 to-red-300",
-    products: 60
+    products: 60,
   },
   {
     id: 5,
     name: "Quick Meals",
     icon: Zap,
     gradient: "from-yellow-400 to-orange-300",
-    products: 75
-  }
+    products: 75,
+  },
 ];
 
 const testimonials = [
