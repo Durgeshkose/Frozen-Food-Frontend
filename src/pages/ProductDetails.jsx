@@ -39,10 +39,10 @@ const ProductDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <FaSpinner className="animate-spin text-4xl text-blue-600 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-700">Loading Product...</h2>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+        <div className="text-center animate-pulse">
+          <FaSpinner className="animate-spin text-6xl text-cyan-400 mx-auto mb-6 drop-shadow-lg" />
+          <h2 className="text-2xl font-semibold text-cyan-100 animate-bounce">Loading Product...</h2>
         </div>
       </div>
     );
@@ -50,12 +50,12 @@ const ProductDetails = () => {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center p-8 bg-white rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">{error || "Product not found"}</h2>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+        <div className="text-center p-8 backdrop-blur-md bg-white/10 rounded-2xl shadow-2xl border border-white/20 animate-fade-in">
+          <h2 className="text-3xl font-bold text-cyan-100 mb-6">{error || "Product not found"}</h2>
           <button
             onClick={() => navigate('/user-dashboard')}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-3 rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg font-semibold"
           >
             Back to Products
           </button>
@@ -103,36 +103,47 @@ const ProductDetails = () => {
         <meta name="description" content={product.description} />
       </Helmet>
 
-      <div className="bg-gray-50 min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 min-h-screen">
+        {/* Animated background particles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl animate-pulse top-10 left-10"></div>
+          <div className="absolute w-80 h-80 bg-blue-400/10 rounded-full blur-3xl animate-pulse bottom-10 right-10 animation-delay-2s"></div>
+          <div className="absolute w-64 h-64 bg-indigo-400/10 rounded-full blur-3xl animate-pulse top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animation-delay-4s"></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center text-blue-600 hover:text-blue-800 mb-6 transition-colors font-medium"
+            className="flex items-center text-cyan-300 hover:text-cyan-100 mb-8 transition-all duration-300 font-medium transform hover:scale-105 group"
           >
-            <FaArrowLeft className="mr-2" />
-            Back
+            <FaArrowLeft className="mr-2 transition-transform duration-300 group-hover:-translate-x-1" />
+            <span className="relative">
+              Back
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-cyan-300 transition-all duration-300 group-hover:w-full"></span>
+            </span>
           </button>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 animate-fade-in-up">
             {/* Product Image */}
-            <div className="relative bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="relative backdrop-blur-lg bg-white/5 p-6 rounded-2xl shadow-2xl border border-white/10 hover:bg-white/10 transition-all duration-500 group">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 to-indigo-400/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-auto max-h-[500px] object-contain rounded-lg"
+                className="relative z-10 w-full h-auto max-h-[500px] object-contain rounded-xl transition-transform duration-500 group-hover:scale-105"
               />
               {!product.inStock && (
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                  <span className="bg-red-500 text-white px-4 py-2 rounded-full text-lg font-semibold">
+                <div className="absolute inset-6 bg-black/70 backdrop-blur-sm flex items-center justify-center rounded-xl animate-pulse">
+                  <span className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-6 py-3 rounded-full text-lg font-semibold shadow-lg">
                     Out of Stock
                   </span>
                 </div>
               )}
-              <div className="absolute top-4 left-4">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  product.category === 'Veg' ? 'bg-green-100 text-green-800' :
-                  product.category === 'Non-Veg' ? 'bg-red-100 text-red-800' :
-                  'bg-yellow-100 text-yellow-800'
+              <div className="absolute top-8 left-8 z-20">
+                <span className={`px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md border transition-all duration-300 hover:scale-110 ${
+                  product.category === 'Veg' ? 'bg-green-500/20 text-green-200 border-green-400/30' :
+                  product.category === 'Non-Veg' ? 'bg-red-500/20 text-red-200 border-red-400/30' :
+                  'bg-yellow-500/20 text-yellow-200 border-yellow-400/30'
                 }`}>
                   {product.category}
                 </span>
@@ -140,100 +151,186 @@ const ProductDetails = () => {
             </div>
 
             {/* Product Details */}
-            <div className="flex flex-col justify-center">
-              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-3">
+            <div className="flex flex-col justify-center space-y-6 animate-fade-in-right">
+              <h1 className="text-4xl lg:text-5xl font-bold text-cyan-100 mb-4 animate-slide-down">
                 {product.name}
               </h1>
 
-              <div className="flex items-center mb-4">
+              <div className="flex items-center animate-fade-in">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <FaStar
                       key={i}
-                      className={`text-lg ${
+                      className={`text-xl transition-all duration-300 hover:scale-125 ${
                         i < Math.floor(product.ratings || 0)
-                          ? 'text-yellow-400'
-                          : 'text-gray-300'
+                          ? 'text-yellow-400 drop-shadow-lg animate-twinkle'
+                          : 'text-slate-600'
                       }`}
+                      style={{ animationDelay: `${i * 0.1}s` }}
                     />
                   ))}
                 </div>
-                <span className="ml-3 text-gray-600">
+                <span className="ml-4 text-slate-300 font-medium">
                   {product.ratings || 0} ratings ({product.numReviews || 0} reviews)
                 </span>
               </div>
 
-              <div className="text-4xl font-bold text-blue-600 mb-6">
+              <div className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent animate-pulse">
                 ₹{product.price}
               </div>
 
-              <p className="text-gray-700 mb-6 leading-relaxed">
+              <p className="text-slate-300 leading-relaxed text-lg backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10">
                 {product.description}
               </p>
 
-              <div className="flex items-center mb-6">
-                <span className="text-gray-700 mr-4 font-medium">Quantity:</span>
-                <div className="flex items-center border border-gray-300 rounded-lg">
+              <div className="flex items-center backdrop-blur-sm bg-white/5 p-4 rounded-xl border border-white/10">
+                <span className="text-cyan-200 mr-6 font-semibold text-lg">Quantity:</span>
+                <div className="flex items-center backdrop-blur-md bg-white/10 rounded-xl border border-white/20 shadow-lg">
                   <button
                     onClick={decrementQuantity}
-                    className="p-2.5 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-3 hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-l-xl transform active:scale-95"
                     disabled={quantity <= 1}
                     aria-label="Decrement quantity"
                   >
-                    <FaMinus className="text-sm" />
+                    <FaMinus className="text-cyan-200" />
                   </button>
-                  <span className="px-5 py-2 border-x border-gray-300 min-w-[60px] text-center font-medium">
+                  <span className="px-6 py-3 border-x border-white/20 min-w-[80px] text-center font-bold text-cyan-100 text-lg">
                     {quantity}
                   </span>
                   <button
                     onClick={incrementQuantity}
-                    className="p-2.5 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-3 hover:bg-white/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-r-xl transform active:scale-95"
                     disabled={quantity >= product.stock}
                     aria-label="Increment quantity"
                   >
-                    <FaPlus className="text-sm" />
+                    <FaPlus className="text-cyan-200" />
                   </button>
                 </div>
-                <span className="ml-4 text-sm text-gray-500">{product.stock} available</span>
+                <span className="ml-6 text-sm text-slate-400 font-medium">{product.stock} available</span>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={handleAddToCart}
                   disabled={!product.inStock || isAddingToCart}
-                  className={`flex-1 flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-lg transition-all duration-200 transform hover:scale-105 ${
+                  className={`flex-1 flex items-center justify-center px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg ${
                     product.inStock
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  } ${isAddingToCart ? 'opacity-75' : ''}`}
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-600 hover:to-blue-700 hover:shadow-cyan-500/25 hover:shadow-2xl active:scale-95'
+                      : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                  } ${isAddingToCart ? 'animate-pulse' : ''}`}
                 >
                   {isAddingToCart ? (
                     <div className="flex items-center">
-                      <FaSpinner className="animate-spin mr-2" />
+                      <FaSpinner className="animate-spin mr-3 text-xl" />
                       Adding...
                     </div>
                   ) : (
-                    <><FaShoppingCart className="mr-2" />Add to Cart</>
+                    <div className="flex items-center">
+                      <FaShoppingCart className="mr-3 text-xl" />
+                      Add to Cart
+                    </div>
                   )}
                 </button>
 
                 <button
                   onClick={handleWishlistToggle}
                   disabled={isAddingToWishlist}
-                  className={`px-5 py-3 rounded-lg font-medium transition-colors border-2 flex items-center justify-center ${
+                  className={`px-6 py-4 rounded-xl font-semibold transition-all duration-300 border-2 flex items-center justify-center transform hover:scale-105 active:scale-95 ${
                     isInWishlist
-                      ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  } ${isAddingToWishlist ? 'opacity-50' : ''}`}
+                      ? 'bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-300 border-red-400/50 hover:from-red-500/30 hover:to-pink-500/30 backdrop-blur-md'
+                      : 'bg-white/10 text-slate-300 border-white/30 hover:bg-white/20 backdrop-blur-md'
+                  } ${isAddingToWishlist ? 'animate-pulse' : ''}`}
                   aria-label="Toggle Wishlist"
                 >
-                  <FaHeart className={`inline ${isInWishlist ? 'text-red-600' : ''}`} />
+                  <FaHeart className={`text-xl transition-all duration-300 ${isInWishlist ? 'text-red-400 animate-heartbeat' : 'hover:text-red-400'}`} />
                 </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes fade-in-up {
+          from { 
+            opacity: 0; 
+            transform: translateY(30px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
+        }
+        
+        @keyframes fade-in-right {
+          from { 
+            opacity: 0; 
+            transform: translateX(30px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateX(0); 
+          }
+        }
+        
+        @keyframes slide-down {
+          from { 
+            opacity: 0; 
+            transform: translateY(-20px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
+        }
+        
+        @keyframes twinkle {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.2); }
+        }
+        
+        @keyframes heartbeat {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.6s ease-out;
+        }
+        
+        .animate-fade-in-up {
+          animation: fade-in-up 0.8s ease-out;
+        }
+        
+        .animate-fade-in-right {
+          animation: fade-in-right 0.8s ease-out 0.2s both;
+        }
+        
+        .animate-slide-down {
+          animation: slide-down 0.6s ease-out 0.1s both;
+        }
+        
+        .animate-twinkle {
+          animation: twinkle 2s ease-in-out infinite;
+        }
+        
+        .animate-heartbeat {
+          animation: heartbeat 1.5s ease-in-out infinite;
+        }
+        
+        .animation-delay-2s {
+          animation-delay: 2s;
+        }
+        
+        .animation-delay-4s {
+          animation-delay: 4s;
+        }
+      `}</style>
     </>
   );
 };
